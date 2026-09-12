@@ -18,7 +18,6 @@ def load_csv(filename):
     except Exception as e:
         st.error(f"Error loading {filename}.csv: {e}")
         return None
-
 # Load all 12 active data layers using core root names
 city_df = load_csv("city")
 competitor_event_df = load_csv("competitor_event")
