@@ -9,7 +9,7 @@ st.title("🥇 Global Olympic Games Performance Dashboard")
 st.caption("A Professional Replication of Our PostgreSQL & Power BI Analytics Portfolio")
 st.divider()
 
-# Core Data Ingestion Pipeline - Handles all 12 CSV files dynamically
+# Core Data Ingestion Pipeline
 @st.cache_data
 def load_csv(filename):
     base_url = "https://githubusercontent.com"
@@ -18,7 +18,8 @@ def load_csv(filename):
     except Exception as e:
         st.error(f"Error loading {filename}.csv: {e}")
         return None
-# Load all 12 active data layers using core root names
+
+# Load active data layers
 city_df = load_csv("city")
 competitor_event_df = load_csv("competitor_event")
 consolidated_fact_df = load_csv("consolidated_fact")
@@ -54,7 +55,6 @@ with tab1:
 with tab2:
     st.subheader("Athlete Distribution & Characteristics")
     if person_df is not None:
-        # Generate a clean sample layout graph for demographics
         st.markdown("**Overview of Registered Competitors Summary Data**")
         st.dataframe(person_df.head(100), use_container_width=True)
     else:
