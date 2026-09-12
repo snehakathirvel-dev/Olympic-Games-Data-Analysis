@@ -11,7 +11,7 @@ st.divider()
 # Core Data Ingestion Pipeline
 @st.cache_data
 def load_csv(filename):
-    base_url = "https://githubusercontent.com"
+          base_url = "https://githubusercontent.com"
     try:
         return pd.read_csv(f"{base_url}{filename}.csv")
     except Exception as e:
