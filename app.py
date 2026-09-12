@@ -57,7 +57,6 @@ def load_olympic_system():
                 
                 # Dynamic Typo Handler for columns that might be cut off in Excel/CSVs
                 if file == "games":
-                    # Rename columns if they match starting patterns to handle cut-offs
                     for col in df.columns:
                         if col.startswith("games_ye") or col.startswith("year") or "ye" in col:
                             df.rename(columns={col: "games_ye"}, inplace=True)
@@ -86,9 +85,8 @@ st.sidebar.divider()
 st.sidebar.title("Filters")
 
 if db["games"] is not None and db["person"] is not None:
-    # Ensure our corrected column name exists before doing downstream operations
     if "games_ye" not in db["games"].columns:
-        db["games"]["games_ye"] = 1996 # Fallback default value to prevent code breaks
+        db["games"]["games_ye"] = 1996 
         
     # Sidebar interactive filter hooks
     season_opts = ["All"] + list(db["games"]["season"].dropna().unique()) if "season" in db["games"].columns else ["All"]
@@ -167,9 +165,11 @@ if db["games"] is not None and db["person"] is not None:
             fig_trend.update_layout(plot_bgcolor="rgba(0,0,0,0)", yaxis_title=None, xaxis_title=None)
             st.plotly_chart(fig_trend, use_container_width=True)
         with right_layout:
-            mock_regions = pd.DataFrame({"Region": ["USA", "GER", "GBR", "FRA", "RUS"] * 3, "Medal Type": ["Gold"]*5 + ["Silver"]*5 + ["Bronze"]*5, "Count": [55, 40, 35, 30, 28, 48, 38, 32, 28, 25, 42, 35, 30, 26, 22]})
+            mock_regions = pd.DataFrame({"Region": ["USA", "GER", "GBR", "FRA", "RUS"] * 3, "Medal Type": ["Gold"]*5 + ["Silver"]*5 + ["Bronze"]*5, "Count": [510, 420, 310, 240, 490, 480, 390, 290, 210, 430, 440, 370, 270, 190, 400]})
             fig_lead = px.bar(mock_regions, x="Count", y="Region", color="Medal Type", orientation="h", title="Medal Leaderboard by Region", color_discrete_map={"Gold": "#7b5da7", "Silver": "#a28ec1", "Bronze": "#c9bfe0"})
-            fig_lead.update_layout(yaxis={'categoryorder':'total ascending'}, plot_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig_lead, use_container_width=True)
 
     # --- PAGE 4: ANOMALIES & EVENT MILESTONES ---
+    elif page == "4. Anomalies & Event Milestones":
+        st.markdown('<div class="main-title-box">Anomalies & Event Milestones</div>', unsafe_allow_html=True)
+        m1, m2, m3 = st.columns(3)
