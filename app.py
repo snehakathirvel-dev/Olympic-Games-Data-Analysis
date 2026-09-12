@@ -12,10 +12,10 @@ st.divider()
 # Core Data Ingestion Pipeline - Automatically fallback to capital .CSV extensions!
 @st.cache_data
 def load_csv(filename):
-    base_url = "https://githubusercontent.com"
+       base_url = "https://githubusercontent.com"
     try:
         # 1. Try default lowercase .csv
-        return pd.read_csv(f"{base_url}{filename}.csv")
+              return pd.read_csv(f"{base_url}{filename}")
     except Exception:
         try:
             # 2. Try raw fallback name
