@@ -8,25 +8,15 @@ st.set_page_config(page_title="Global Olympic Analytics Engine", layout="wide", 
 st.title("🥇 Global Olympic Games Performance Dashboard")
 st.caption("A Professional Replication of Our PostgreSQL & Power BI Analytics Portfolio")
 st.divider()
-
-# Core Data Ingestion Pipeline - Automatically fallback to capital .CSV extensions!
+# Core Data Ingestion Pipeline
 @st.cache_data
 def load_csv(filename):
-       base_url = "https://githubusercontent.com"
+    base_url = "https://githubusercontent.com"
     try:
-        # 1. Try default lowercase .csv
-              return pd.read_csv(f"{base_url}{filename}")
-    except Exception:
-        try:
-            # 2. Try raw fallback name
-            return pd.read_csv(f"{base_url}{filename}")
-        except Exception:
-            try:
-                # 3. Try mandatory capital .CSV extension fix!
-                return pd.read_csv(f"{base_url}{filename}.CSV")
-            except Exception:
-                return None
-
+        return pd.read_csv(f"{base_url}{filename}.csv")
+    except Exception as e:
+        st.error(f"Error loading {filename}: {e}")
+        return None
 # Load your active data layers using core root names
 games_df = load_csv("games")
 medal_df = load_csv("medal")
