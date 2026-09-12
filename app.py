@@ -3,14 +3,14 @@ import pandas as pd
 import plotly.express as px
 import os
 
-# Set up clean, widescreen analytical dashboard configurations
-st.set_page_config(page_title="Olympic Analytics Portfolio", layout="wide", initial_sidebar_state="expanded")
+# Set up global widescreen configurations
+st.set_page_config(page_title="Global Olympic Analytics Portfolio", layout="wide", initial_sidebar_state="expanded")
 
 st.title("🥇 Global Olympic Games Performance Dashboard")
 st.caption("A Professional Enterprise Replication of Our PostgreSQL & Power BI Analytics Architecture")
 st.divider()
 
-# 1. Central Data Ingestion Engine (Loads ALL 12 Active CSV Layers Local Files)
+# 1. Central Data Ingestion Engine (Loads ALL 12 Active CSV Layers)
 @st.cache_data
 def load_olympic_system():
     files = [
@@ -31,14 +31,12 @@ def load_olympic_system():
             data_layers[file] = None
     return data_layers
 
-# Initialize entire database dictionary
 db = load_olympic_system()
 
 # 2. Sidebar Navigation and Multi-File Status Tracker
 st.sidebar.title("🗄️ Database Management")
 st.sidebar.markdown("### System File Connection Monitor")
 
-# Track file availability explicitly in the sidebar UI
 for name, df in db.items():
     if df is not None:
         st.sidebar.success(f"Connected: `{name}.csv` ({len(df):,} rows)")
@@ -72,60 +70,83 @@ with tab1:
         st.metric("Tracked Sporting Categories", f"{total_sports:,}")
 
     st.divider()
-    st.markdown("### Quick Data Verification View")
-    if db["consolidated_fact"] is not None:
-        st.dataframe(db["consolidated_fact"].head(100), use_container_width=True)
-    else:
-        st.info("Upload your consolidated data to view transaction details.")
+    
+    st.markdown("### 📊 Database Storage Profile")
+    row_counts = []
+    for name, df in db.items():
+        if df is not None:
+            row_counts.append({"Table Name": f"{name}.csv", "Total Rows": len(df)})
+    
+    if row_counts:
+        counts_df = pd.DataFrame(row_counts)
+        fig_base = px.bar(
+            counts_df, 
+            x="Table Name", 
+            y="Total Rows", 
+            title="Data Volume Distribution across Your 12 Relational Tables",
+            text_auto='.2s',
+            color="Table Name"
+        )
+        st.plotly_chart(fig_base, use_container_width=True)
 
 # --- TAB 2: ATHLETE & SPORT DEMOGRAPHICS ---
 with tab2:
-    st.subheader("Athlete & Sport Analysis")
+    st.subheader("Athlete & Sport Analysis Visualizations")
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("**Sample Profile: Competitor Records**")
-        if db["person"] is not None:
-            st.dataframe(db["person"].head(50), use_container_width=True)
+        if db["person"] is not None and 'gender' in db["person"].columns:
+            st.markdown("### Gender Distribution")
+            gender_counts = db["person"]['gender'].value_counts().reset_index()
+            gender_counts.columns = ['Gender', 'Count']
+            fig_gen = px.pie(gender_counts, values='Count', names='Gender', title="Athlete Breakdown by Gender", color_discrete_sequence=px.colors.qualitative.Pastel)
+            st.plotly_chart(fig_gen, use_container_width=True)
         else:
-            st.warning("Person layer unavailable.")
+            st.info("Athlete data layers or gender configurations are loading.")
             
     with col2:
-        st.markdown("**Sample Profile: Sports & Disciplines**")
-        if db["sport"] is not None:
-            st.dataframe(db["sport"].head(50), use_container_width=True)
+        if db["games_competitor"] is not None and 'age' in db["games_competitor"].columns:
+            st.markdown("### Athlete Age Distribution Profile")
+            # Clear null values to ensure proper graph plotting bounds
+            age_data = db["games_competitor"]['age'].dropna()
+            fig_age = px.histogram(age_data, x='age', title="Distribution Count of Athlete Ages", nbins=30, color_discrete_sequence=['#636EFA'])
+            st.plotly_chart(fig_age, use_container_width=True)
         else:
-            st.warning("Sport layer unavailable.")
+            st.info("Competitor performance history layers are loading.")
 
 # --- TAB 3: HISTORICAL MEDAL ANALYTICS ---
 with tab3:
-    st.subheader("Performance & Medal Distributions")
+    st.subheader("Performance & Medal Distributions Visualizations")
     col3, col4 = st.columns(2)
     
     with col3:
-        st.markdown("**Sample Profile: Awarded Medals Inventory**")
-        if db["medal"] is not None:
-            st.dataframe(db["medal"].head(50), use_container_width=True)
+        if db["games"] is not None and 'season' in db["games"].columns:
+            st.markdown("### Olympic Games Season Classifications")
+            season_counts = db["games"]['season'].value_counts().reset_index()
+            season_counts.columns = ['Season', 'Count']
+            fig_sea = px.pie(season_counts, values='Count', names='Season', title="Ratio of Summer vs. Winter Games hosted")
+            st.plotly_chart(fig_sea, use_container_width=True)
         else:
-            st.warning("Medal layer unavailable.")
+            st.info("Historical games records are loading.")
             
     with col4:
-        st.markdown("**Sample Profile: Regional Mappings (NOC)**")
-        if db["noc_region"] is not None:
-            st.dataframe(db["noc_region"].head(50), use_container_width=True)
+        if db["medal"] is not None and 'medal_name' in db["medal"].columns:
+            st.markdown("### Master Medal Classifications")
+            medal_counts = db["medal"]['medal_name'].value_counts().reset_index()
+            medal_counts.columns = ['Medal Type', 'Count']
+            fig_med = px.bar(medal_counts, x='Medal Type', y='Count', title="Available Unique Medal Rankings Categories", color='Medal Type')
+            st.plotly_chart(fig_med, use_container_width=True)
         else:
-            st.warning("NOC Region layer unavailable.")
+            st.info("Medal lookup system layers are loading.")
 
 # --- TAB 4: RAW RELATIONAL SCHEMA EXPLORER ---
 with tab4:
     st.subheader("Relational Database Schema Table Inspections")
-    st.markdown("Select any active relational table below to inspect its data shape directly:")
-    
-    selected_layer = st.selectbox("Choose Table Layer:", list(db.keys()))
+    selected_layer = st.selectbox("Choose Table Layer to View:", list(db.keys()), key="final_explorer")
     
     if db[selected_layer] is not None:
         st.write(f"Showing sample records for **{selected_layer}.csv**:")
-        st.write(f"**Shape:** {db[selected_layer].shape[0]} rows, {db[selected_layer].shape[1]} columns")
-        st.dataframe(db[selected_layer], use_container_width=True)
+        st.write(f"**Shape:** {db[selected_layer].shape:,} rows, {db[selected_layer].shape} columns")
+        st.dataframe(db[selected_layer].head(100), use_container_width=True)
     else:
         st.error(f"The selected table layer '{selected_layer}' is empty or failed to load.")
