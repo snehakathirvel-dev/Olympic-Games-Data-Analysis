@@ -38,7 +38,7 @@ st.markdown("""
         color: #333333;
     }
     </style>
-""", unsafe_allow_index=True)
+""", unsafe_allow_html=True)
 
 # 2. Central Local Data Loader Engine
 @st.cache_data
@@ -93,12 +93,12 @@ if db["games"] is not None and db["person"] is not None:
 
     # --- PAGE 1: OLYMPIC GAMES OVERVIEW ---
     if page == "1. Olympic Games Overview":
-        st.markdown('<div class="main-title-box">The Olympic Games Overview</div>', unsafe_allow_index=True)
+        st.markdown('<div class="main-title-box">The Olympic Games Overview</div>', unsafe_allow_html=True)
         m1, m2, m3, m4 = st.columns(4)
-        with m1: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Athletes</div><div class="kpi-value">{len(db["person"]):,}</div></div>', unsafe_allow_index=True)
-        with m2: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Sports</div><div class="kpi-value">{len(db["sport"]):,}</div></div>', unsafe_allow_index=True)
-        with m3: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Medals</div><div class="kpi-value">34,000</div></div>', unsafe_allow_index=True)
-        with m4: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Participating Countries</div><div class="kpi-value">{len(db["noc_region"]):,}</div></div>', unsafe_allow_index=True)
+        with m1: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Athletes</div><div class="kpi-value">{len(db["person"]):,}</div></div>', unsafe_allow_html=True)
+        with m2: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Sports</div><div class="kpi-value">{len(db["sport"]):,}</div></div>', unsafe_allow_html=True)
+        with m3: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Medals</div><div class="kpi-value">34,000</div></div>', unsafe_allow_html=True)
+        with m4: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Participating Countries</div><div class="kpi-value">{len(db["noc_region"]):,}</div></div>', unsafe_allow_html=True)
 
         r1c1, r1c2 = st.columns(2)
         with r1c1:
@@ -115,12 +115,12 @@ if db["games"] is not None and db["person"] is not None:
 
     # --- PAGE 2: ATHLETE & SPORT DEMOGRAPHICS ---
     elif page == "2. Athlete & Sport Demographics":
-        st.markdown('<div class="main-title-box">Athlete & Sport Demographics</div>', unsafe_allow_index=True)
+        st.markdown('<div class="main-title-box">Athlete & Sport Demographics</div>', unsafe_allow_html=True)
         m1, m2, m3, m4 = st.columns(4)
-        with m1: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Events</div><div class="kpi-value">{len(db["event"]):,}</div></div>', unsafe_allow_index=True)
-        with m2: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of height</div><div class="kpi-value">138 kg</div></div>', unsafe_allow_index=True)
-        with m3: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of weight</div><div class="kpi-value">56 kg</div></div>', unsafe_allow_index=True)
-        with m4: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of age</div><div class="kpi-value">25.78</div></div>', unsafe_allow_index=True)
+        with m1: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Events</div><div class="kpi-value">{len(db["event"]):,}</div></div>', unsafe_allow_html=True)
+        with m2: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of height</div><div class="kpi-value">138 cm</div></div>', unsafe_allow_html=True)
+        with m3: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of weight</div><div class="kpi-value">56 kg</div></div>', unsafe_allow_html=True)
+        with m4: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of age</div><div class="kpi-value">25.78</div></div>', unsafe_allow_html=True)
 
         left_col, right_col = st.columns([1.2, 1.8])
         with left_col:
@@ -135,12 +135,12 @@ if db["games"] is not None and db["person"] is not None:
 
     # --- PAGE 3: GLOBAL MEDAL PERFORMANCE ---
     elif page == "3. Global Medal Performance":
-        st.markdown('<div class="main-title-box">Global Medal Performance</div>', unsafe_allow_index=True)
+        st.markdown('<div class="main-title-box">Global Medal Performance</div>', unsafe_allow_html=True)
         m1, m2, m3, m4 = st.columns(4)
-        with m1: st.markdown('<div class="kpi-card"><div class="kpi-title">Total Medals</div><div class="kpi-value">34K</div></div>', unsafe_allow_index=True)
-        with m2: st.markdown('<div class="kpi-card"><div class="kpi-title">Gold Medals</div><div class="kpi-value">11K</div></div>', unsafe_allow_index=True)
-        with m3: st.markdown('<div class="kpi-card"><div class="kpi-title">Silver Medals</div><div class="kpi-value">11.11K</div></div>', unsafe_allow_index=True)
-        with m4: st.markdown('<div class="kpi-card"><div class="kpi-title">Bronze Medals</div><div class="kpi-value">11.19K</div></div>', unsafe_allow_index=True)
+        with m1: st.markdown('<div class="kpi-card"><div class="kpi-title">Total Medals</div><div class="kpi-value">34K</div></div>', unsafe_allow_html=True)
+        with m2: st.markdown('<div class="kpi-card"><div class="kpi-title">Gold Medals</div><div class="kpi-value">11K</div></div>', unsafe_allow_html=True)
+        with m3: st.markdown('<div class="kpi-card"><div class="kpi-title">Silver Medals</div><div class="kpi-value">11.11K</div></div>', unsafe_allow_html=True)
+        with m4: st.markdown('<div class="kpi-card"><div class="kpi-title">Bronze Medals</div><div class="kpi-value">11.19K</div></div>', unsafe_allow_html=True)
 
         left_layout, right_layout = st.columns([1.3, 1.7])
         with left_layout:
@@ -150,18 +150,18 @@ if db["games"] is not None and db["person"] is not None:
             fig_trend.update_layout(plot_bgcolor="rgba(0,0,0,0)", yaxis_title=None, xaxis_title=None)
             st.plotly_chart(fig_trend, use_container_width=True)
         with right_layout:
-            mock_regions = pd.DataFrame({"Region": ["USA", "GER", "GBR", "FRA", "RUS"] * 3, "Medal Type": ["Gold"]*5 + ["Silver"]*5 + ["Bronze"]*5, "Count": [120, 95, 80, 60, 110, 110, 85, 75, 55, 90, 105, 90, 70, 50, 95]})
+            mock_regions = pd.DataFrame({"Region": ["USA", "GER", "GBR", "FRA", "RUS"] * 3, "Medal Type": ["Gold"]*5 + ["Silver"]*5 + ["Bronze"]*5, "Count": [40, 30, 25, 20, 35, 38, 28, 22, 18, 30, 35, 29, 24, 19, 32]})
             fig_lead = px.bar(mock_regions, x="Count", y="Region", color="Medal Type", orientation="h", title="Medal Leaderboard by Region", color_discrete_map={"Gold": "#7b5da7", "Silver": "#a28ec1", "Bronze": "#c9bfe0"})
             fig_lead.update_layout(yaxis={'categoryorder':'total ascending'}, plot_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig_lead, use_container_width=True)
 
     # --- PAGE 4: ANOMALIES & EVENT MILESTONES ---
     elif page == "4. Anomalies & Event Milestones":
-        st.markdown('<div class="main-title-box">Anomalies & Event Milestones</div>', unsafe_allow_index=True)
+        st.markdown('<div class="main-title-box">Anomalies & Event Milestones</div>', unsafe_allow_html=True)
         m1, m2, m3 = st.columns(3)
-        with m1: st.markdown('<div class="kpi-card"><div class="kpi-title">Total Sports Varieties</div><div class="kpi-value">231</div></div>', unsafe_allow_index=True)
-        with m2: st.markdown('<div class="kpi-card"><div class="kpi-title">Participating Nations</div><div class="kpi-value">230</div></div>', unsafe_allow_index=True)
-        with m3: st.markdown('<div class="kpi-card"><div class="kpi-title">Discontinued Sports</div><div class="kpi-value">32</div></div>', unsafe_allow_index=True)
+        with m1: st.markdown('<div class="kpi-card"><div class="kpi-title">Total Sports Varieties</div><div class="kpi-value">231</div></div>', unsafe_allow_html=True)
+        with m2: st.markdown('<div class="kpi-card"><div class="kpi-title">Participating Nations</div><div class="kpi-value">230</div></div>', unsafe_allow_html=True)
+        with m3: st.markdown('<div class="kpi-card"><div class="kpi-title">Discontinued Sports</div><div class="kpi-value">32</div></div>', unsafe_allow_html=True)
 
         left_side, right_side = st.columns([1.3, 1.7])
         with left_side:
@@ -169,3 +169,4 @@ if db["games"] is not None and db["person"] is not None:
             event_grow["Events Count"] = (event_grow["games_ye"] - 1896) * 2.8 + 40
             fig_grow = px.line(event_grow, x="games_ye", y="Events Count", color="season", title="Historical Growth of Olympic Events Over Time", color_discrete_sequence=["#7b5da7", "#00cc96"])
             fig_grow.update_layout(plot_bgcolor="rgba(0,0,0,0)", yaxis_title=None, xaxis_title=None)
+            st.plotly_chart(fig_grow, use_container_width=True)
