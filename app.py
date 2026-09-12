@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import os
 
 # Set up global layout configurations
 st.set_page_config(page_title="Global Olympic Games Analytics", layout="wide")
@@ -9,12 +10,13 @@ st.title("🥇 Global Olympic Games Performance Dashboard")
 st.caption("A Professional Replication of Our PostgreSQL & Power BI Analytics Portfolio")
 st.divider()
 
-# Core Data Ingestion Pipeline
+# Core Data Ingestion Pipeline - Reads directly from the local folder
 @st.cache_data
 def load_csv(filename):
-    base_url = "https://githubusercontent.com"
+    # Search for the file in the local CSV directory
+    file_path = os.path.join("CSV", f"{filename}.csv")
     try:
-        return pd.read_csv(f"{base_url}{filename}.csv")
+        return pd.read_csv(file_path)
     except Exception as e:
         st.error(f"Error loading {filename}.csv: {e}")
         return None
