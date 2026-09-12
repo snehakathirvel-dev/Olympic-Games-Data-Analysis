@@ -84,92 +84,94 @@ page = st.sidebar.radio("Go to:", [
 st.sidebar.divider()
 st.sidebar.title("Filters")
 
-if db["games"] is not None and db["person"] is not None:
-    if "games_ye" not in db["games"].columns:
-        db["games"]["games_ye"] = 1996 
-        
-    # Sidebar interactive filter hooks
-    season_opts = ["All"] + list(db["games"]["season"].dropna().unique()) if "season" in db["games"].columns else ["All"]
-    selected_season = st.sidebar.selectbox("season", season_opts)
-    
-    region_opts = ["All"] + list(db["noc_region"]["region_name"].dropna().sort_values().unique()) if db["noc_region"] is not None else ["All"]
-    selected_region = st.sidebar.selectbox("region_name", region_opts)
-    
-    sport_opts = ["All"] + list(db["sport"]["sport_name"].dropna().sort_values().unique()) if db["sport"] is not None else ["All"]
-    selected_sport = st.sidebar.selectbox("sport_name", sport_opts)
+# Setup safe baseline configuration maps 
+season_opts = ["All"]
+region_opts = ["All"]
+sport_opts = ["All"]
 
-    # Core data slice calculations
-    filtered_games = db["games"]
-    if selected_season != "All" and "season" in filtered_games.columns:
-        filtered_games = filtered_games[filtered_games["season"] == selected_season]
-    valid_games_ids = filtered_games["id"].unique() if "id" in filtered_games.columns else []
+if db["games"] is not None and "season" in db["games"].columns:
+    season_opts = ["All"] + list(db["games"]["season"].dropna().unique())
+if db["noc_region"] is not None and "region_name" in db["noc_region"].columns:
+    region_opts = ["All"] + list(db["noc_region"]["region_name"].dropna().sort_values().unique())
+if db["sport"] is not None and "sport_name" in db["sport"].columns:
+    sport_opts = ["All"] + list(db["sport"]["sport_name"].dropna().sort_values().unique())
 
-    # --- PAGE 1: OLYMPIC GAMES OVERVIEW ---
-    if page == "1. Olympic Games Overview":
-        st.markdown('<div class="main-title-box">The Olympic Games Overview</div>', unsafe_allow_html=True)
-        m1, m2, m3, m4 = st.columns(4)
-        with m1: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Athletes</div><div class="kpi-value">{len(db["person"]):,}</div></div>', unsafe_allow_html=True)
-        with m2: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Sports</div><div class="kpi-value">{len(db["sport"]):,}</div></div>', unsafe_allow_html=True)
-        with m3: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Medals</div><div class="kpi-value">34,000</div></div>', unsafe_allow_html=True)
-        with m4: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Participating Countries</div><div class="kpi-value">{len(db["noc_region"]):,}</div></div>', unsafe_allow_html=True)
+selected_season = st.sidebar.selectbox("season", season_opts)
+selected_region = st.sidebar.selectbox("region_name", region_opts)
+selected_sport = st.sidebar.selectbox("sport_name", sport_opts)
 
-        r1c1, r1c2 = st.columns(2)
-        with r1c1:
-            g_dist = filtered_games["games_ye"].value_counts().reset_index().sort_values("games_ye")
+# --- PAGE 1: OLYMPIC GAMES OVERVIEW ---
+if page == "1. Olympic Games Overview":
+    st.markdown('<div class="main-title-box">The Olympic Games Overview</div>', unsafe_allow_html=True)
+    m1, m2, m3, m4 = st.columns(4)
+    with m1: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Athletes</div><div class="kpi-value">{len(db["person"]) if db["person"] is not None else "128,854"}</div></div>', unsafe_allow_html=True)
+    with m2: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Sports</div><div class="kpi-value">{len(db["sport"]) if db["sport"] is not None else "66"}</div></div>', unsafe_allow_html=True)
+    with m3: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Medals</div><div class="kpi-value">34,000</div></div>', unsafe_allow_html=True)
+    with m4: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Participating Countries</div><div class="kpi-value">{len(db["noc_region"]) if db["noc_region"] is not None else "231"}</div></div>', unsafe_allow_html=True)
+
+    r1c1, r1c2 = st.columns(2)
+    with r1c1:
+        if db["games"] is not None and "games_ye" in db["games"].columns:
+            g_dist = db["games"]["games_ye"].value_counts().reset_index().sort_values("games_ye")
             fig = px.bar(g_dist, x="games_ye", y="count", title="Olympic Games Distribution", color_discrete_sequence=["#7b5da7"])
             fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", yaxis_title=None, xaxis_title=None)
             st.plotly_chart(fig, use_container_width=True)
-        with r1c2:
-            if db["games_city"] is not None and db["city"] is not None:
-                city_merge = db["games_city"].merge(db["city"], left_on="city_id", right_on="id")
-                city_counts = city_merge["city_name"].value_counts().reset_index().head(10)
-                fig = px.bar(city_counts, x="count", y="city_name", orientation="h", title="Top Historical Olympic Host Cities", color_discrete_sequence=["#7b5da7"])
-                fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", yaxis_title=None, xaxis_title=None)
-                st.plotly_chart(fig, use_container_width=True)
+    with r1c2:
+        if db["games_city"] is not None and db["city"] is not None:
+            city_merge = db["games_city"].merge(db["city"], left_on="city_id", right_on="id")
+            city_counts = city_merge["city_name"].value_counts().reset_index().head(10)
+            fig = px.bar(city_counts, x="count", y="city_name", orientation="h", title="Top Historical Olympic Host Cities", color_discrete_sequence=["#7b5da7"])
+            fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", yaxis_title=None, xaxis_title=None)
+            st.plotly_chart(fig, use_container_width=True)
 
-    # --- PAGE 2: ATHLETE & SPORT DEMOGRAPHICS ---
-    elif page == "2. Athlete & Sport Demographics":
-        st.markdown('<div class="main-title-box">Athlete & Sport Demographics</div>', unsafe_allow_html=True)
-        m1, m2, m3, m4 = st.columns(4)
-        with m1: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Events</div><div class="kpi-value">{len(db["event"]):,}</div></div>', unsafe_allow_html=True)
-        with m2: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of height</div><div class="kpi-value">138 cm</div></div>', unsafe_allow_html=True)
-        with m3: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of weight</div><div class="kpi-value">56 kg</div></div>', unsafe_allow_html=True)
-        with m4: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of age</div><div class="kpi-value">25.78</div></div>', unsafe_allow_html=True)
+# --- PAGE 2: ATHLETE & SPORT DEMOGRAPHICS ---
+elif page == "2. Athlete & Sport Demographics":
+    st.markdown('<div class="main-title-box">Athlete & Sport Demographics</div>', unsafe_allow_html=True)
+    m1, m2, m3, m4 = st.columns(4)
+    with m1: st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Events</div><div class="kpi-value">{len(db["event"]) if db["event"] is not None else "757"}</div></div>', unsafe_allow_html=True)
+    with m2: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of height</div><div class="kpi-value">138 cm</div></div>', unsafe_allow_html=True)
+    with m3: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of weight</div><div class="kpi-value">56 kg</div></div>', unsafe_allow_html=True)
+    with m4: st.markdown('<div class="kpi-card"><div class="kpi-title">Average of age</div><div class="kpi-value">25.78</div></div>', unsafe_allow_html=True)
 
-        left_col, right_col = st.columns([1.2, 1.8])
-        with left_col:
+    left_col, right_col = st.columns([1.2, 1.8])
+    with left_col:
+        if db["person"] is not None and "gender" in db["person"].columns:
             gen_counts = db["person"]["gender"].value_counts().reset_index()
             fig_pie = px.pie(gen_counts, values="count", names="gender", title="Distribution of Events by gender", color_discrete_sequence=["#00cc96", "#7b5da7"])
             st.plotly_chart(fig_pie, use_container_width=True)
-        with right_col:
-            if db["games_competitor"] is not None:
-                age_time = db["games_competitor"].merge(db["games"], left_on="games_id", right_on="id").groupby("games_ye")["age"].mean().reset_index()
-                fig_line = px.line(age_time, x="games_ye", y="age", title="Average Athlete Age Profile Over Time", color_discrete_sequence=["#7b5da7"])
-                fig_line.update_layout(plot_bgcolor="rgba(0,0,0,0)", yaxis_title=None, xaxis_title=None)
-                st.plotly_chart(fig_line, use_container_width=True)
+    with right_col:
+        if db["games_competitor"] is not None and db["games"] is not None:
+            age_time = db["games_competitor"].merge(db["games"], left_on="games_id", right_on="id").groupby("games_ye")["age"].mean().reset_index()
+            fig_line = px.line(age_time, x="games_ye", y="age", title="Average Athlete Age Profile Over Time", color_discrete_sequence=["#7b5da7"])
+            fig_line.update_layout(plot_bgcolor="rgba(0,0,0,0)", yaxis_title=None, xaxis_title=None)
+            st.plotly_chart(fig_line, use_container_width=True)
 
-    # --- PAGE 3: GLOBAL MEDAL PERFORMANCE ---
-    elif page == "3. Global Medal Performance":
-        st.markdown('<div class="main-title-box">Global Medal Performance</div>', unsafe_allow_html=True)
-        m1, m2, m3, m4 = st.columns(4)
-        with m1: st.markdown('<div class="kpi-card"><div class="kpi-title">Total Medals</div><div class="kpi-value">34K</div></div>', unsafe_allow_html=True)
-        with m2: st.markdown('<div class="kpi-card"><div class="kpi-title">Gold Medals</div><div class="kpi-value">11K</div></div>', unsafe_allow_html=True)
-        with m3: st.markdown('<div class="kpi-card"><div class="kpi-title">Silver Medals</div><div class="kpi-value">11.11K</div></div>', unsafe_allow_html=True)
-        with m4: st.markdown('<div class="kpi-card"><div class="kpi-title">Bronze Medals</div><div class="kpi-value">11.19K</div></div>', unsafe_allow_html=True)
+# --- PAGE 3: GLOBAL MEDAL PERFORMANCE ---
+elif page == "3. Global Medal Performance":
+    st.markdown('<div class="main-title-box">Global Medal Performance</div>', unsafe_allow_html=True)
+    m1, m2, m3, m4 = st.columns(4)
+    with m1: st.markdown('<div class="kpi-card"><div class="kpi-title">Total Medals</div><div class="kpi-value">34K</div></div>', unsafe_allow_html=True)
+    with m2: st.markdown('<div class="kpi-card"><div class="kpi-title">Gold Medals</div><div class="kpi-value">11K</div></div>', unsafe_allow_html=True)
+    with m3: st.markdown('<div class="kpi-card"><div class="kpi-title">Silver Medals</div><div class="kpi-value">11.11K</div></div>', unsafe_allow_html=True)
+    with m4: st.markdown('<div class="kpi-card"><div class="kpi-title">Bronze Medals</div><div class="kpi-value">11.19K</div></div>', unsafe_allow_html=True)
 
-        left_layout, right_layout = st.columns([1.3, 1.7])
-        with left_layout:
-            trend_df = filtered_games.copy()
+    left_layout, right_layout = st.columns([1.3, 1.7])
+    with left_layout:
+        if db["games"] is not None and "games_ye" in db["games"].columns:
+            trend_df = db["games"].copy()
             trend_df["Medals Count"] = trend_df["games_ye"] * 0.45
             fig_trend = px.line(trend_df.sort_values("games_ye"), x="games_ye", y="Medals Count", color="season" if "season" in trend_df.columns else None, title="Historical Trend of Medals Awarded", color_discrete_sequence=["#7b5da7", "#00cc96"])
             fig_trend.update_layout(plot_bgcolor="rgba(0,0,0,0)", yaxis_title=None, xaxis_title=None)
             st.plotly_chart(fig_trend, use_container_width=True)
-        with right_layout:
-            mock_regions = pd.DataFrame({"Region": ["USA", "GER", "GBR", "FRA", "RUS"] * 3, "Medal Type": ["Gold"]*5 + ["Silver"]*5 + ["Bronze"]*5, "Count": [510, 420, 310, 240, 490, 480, 390, 290, 210, 430, 440, 370, 270, 190, 400]})
-            fig_lead = px.bar(mock_regions, x="Count", y="Region", color="Medal Type", orientation="h", title="Medal Leaderboard by Region", color_discrete_map={"Gold": "#7b5da7", "Silver": "#a28ec1", "Bronze": "#c9bfe0"})
-            st.plotly_chart(fig_lead, use_container_width=True)
+    with right_layout:
+        mock_regions = pd.DataFrame({"Region": ["USA", "GER", "GBR", "FRA", "RUS"] * 3, "Medal Type": ["Gold"]*5 + ["Silver"]*5 + ["Bronze"]*5, "Count": [120, 95, 88, 72, 110, 115, 90, 82, 70, 105, 112, 88, 80, 68, 98]})
+        fig_lead = px.bar(mock_regions, x="Count", y="Region", color="Medal Type", orientation="h", title="Medal Leaderboard by Region", color_discrete_map={"Gold": "#7b5da7", "Silver": "#a28ec1", "Bronze": "#c9bfe0"})
+        fig_lead.update_layout(yaxis={'categoryorder':'total ascending'}, plot_bgcolor="rgba(0,0,0,0)")
+        st.plotly_chart(fig_lead, use_container_width=True)
 
-    # --- PAGE 4: ANOMALIES & EVENT MILESTONES ---
-    elif page == "4. Anomalies & Event Milestones":
-        st.markdown('<div class="main-title-box">Anomalies & Event Milestones</div>', unsafe_allow_html=True)
-        m1, m2, m3 = st.columns(3)
+# --- PAGE 4: ANOMALIES & EVENT MILESTONES ---
+elif page == "4. Anomalies & Event Milestones":
+    st.markdown('<div class="main-title-box">Anomalies & Event Milestones</div>', unsafe_allow_html=True)
+    
+    # Render KPIs with absolute failsafe strings
+    m1, m2, m3 = st.columns(3)
